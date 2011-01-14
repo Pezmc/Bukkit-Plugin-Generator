@@ -13,15 +13,14 @@ echo ""
 
 pause
 
-echo -n "Generating plugin..."
+echo "Generating plugin..."
+echo "";
 
 BLOCKLISTENER=BlockListener.java
 YBLOCKLISTENER=${PLUGINNAME}BlockListener.java
 
 PLAYERLISTENER=PlayerListener.java
 YPLAYERLISTENER=${PLUGINNAME}PlayerListener.java 
-
-PLUGINYML=plugin.yml
 
 PLUGIN=YPlugin.java
 YPLUGIN=${PLUGINNAME}.java
@@ -36,13 +35,17 @@ cd $ENDPATH
 
 cd ../../../../
 
-touch $PLUGINYML
+echo "name: $PLUGINNAME
+
+main: com.bukkit.$USERNAME.$PLUGINNAME
+
+version: 0.1" > plugin.yml
 
 cd ../files/
 
-cp $PLUGINYML ../${PLUGINNAME}/plugin.yml
+#cp $PLUGINYML ../${PLUGINNAME}/plugin.yml
 cp $BLOCKLISTENER ../${ENDPATH}/$YBLOCKLISTENER
 cp $PLAYERLISTENER ../${ENDPATH}/$YPLAYERLISTENER
 cp $PLUGIN ../${ENDPATH}/${PLUGINNAME}.java
 
-echo "Done!"
+echo ~~~~~~~~~~~~~~~~~~~ Done! ~~~~~~~~~~~~~~~

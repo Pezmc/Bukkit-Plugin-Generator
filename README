@@ -5,5 +5,5 @@ And sly for first port to *nix
 
 Instructions:
 
-    - Run create (if on osx open in terminal), you may need to chmod +x the file
+    - Run create from terminal, you may need to chmod +x the file
     - Copy the resulting directory into your project directory/
