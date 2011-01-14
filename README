@@ -1,0 +1,9 @@
+~~~~~ Bukkit Plugin Generator for *nix (inc OSX) systems ~~~~~
+
+Special thanks to tomsik68 for the original.
+
+Instructions:
+
+    - Edit plugin.yml in your favorite text editor.
+    - Run create.sh
+    - Copy the resulting directory into your project directory/
