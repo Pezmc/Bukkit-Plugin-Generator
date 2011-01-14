@@ -5,6 +5,6 @@ And sly for first port to *nix
 
 Instructions:
 
-    - Edit plugin.yml in your favorite text editor.
-    - Run create.sh
+    - Edit files/plugin.yml in your favorite text editor.
+    - Run create (if on osx open in terminal)
     - Copy the resulting directory into your project directory/
