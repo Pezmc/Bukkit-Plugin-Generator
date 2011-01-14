@@ -3,7 +3,7 @@ function pause(){
     read -p "Press any key to continue."
 }
 
-echo ~~~~~ \*nix Bukkit Plugin Generator by sli ~~~~~
+echo ~~~~~ \*nix Bukkit Plugin Generator ~~~~~
 
 read -p "Enter your name: " USERNAME
 read -p "Enter your plugin's name: " PLUGINNAME
