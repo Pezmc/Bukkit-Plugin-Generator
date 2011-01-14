@@ -1,5 +1,0 @@
-name: <PluginName>
-
-main: com.bukkit.<YourName>.<PluginName>
-
-version: <Version Number> 
