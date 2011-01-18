@@ -1,5 +1,7 @@
-import org.bukkit.Block;
-import org.bukkit.BlockFace;
+package com.bukkit.<yourname>.<pluginname>;
+
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.Material;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockListener;

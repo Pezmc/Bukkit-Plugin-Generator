@@ -44,8 +44,8 @@ version: 0.1" > plugin.yml
 cd ../files/
 
 #cp $PLUGINYML ../${PLUGINNAME}/plugin.yml
-cp $BLOCKLISTENER ../${ENDPATH}/$YBLOCKLISTENER
-cp $PLAYERLISTENER ../${ENDPATH}/$YPLAYERLISTENER
-cp $PLUGIN ../${ENDPATH}/${PLUGINNAME}.java
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $BLOCKLISTENER > ../${ENDPATH}/$YBLOCKLISTENER
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $PLAYERLISTENER > ../${ENDPATH}/$YPLAYERLISTENER
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $PLUGIN > ../${ENDPATH}/${PLUGINNAME}.java
 
 echo ~~~~~~~~~~~~~~~~~~~ Done! ~~~~~~~~~~~~~~~

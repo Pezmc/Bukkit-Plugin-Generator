@@ -1,6 +1,8 @@
+package com.bukkit.<yourname>.<pluginname>;
+
 import java.io.File;
 import java.util.HashMap;
-import org.bukkit.Player;
+import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
