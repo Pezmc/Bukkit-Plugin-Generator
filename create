@@ -1,51 +1,191 @@
 #!/bin/bash
+## A simple script to generate the skeleton for a new BukkitMod plugin.
+## Written by: Pezmc
+
+
+# Check if we're running windows. If so, clear the
+# "bash: warning: could not find /tmp, please create!
+# error that likely occurred when bash was started.
+if [ $_OS -a $_OS == "NT" ]; then
+	if [ "${_CMD}" != "NULL" ]; then
+		eval "$(echo -n "${_CMD}" | sed -e 's/\\/\//g' | sed -e 's/^[a-z]://mi' | sed -e 's/[\r\n]//g')"
+	fi
+fi
+
+# Pause (Getch)
 function pause(){
     read -p "Press any key to continue..."
 }
 
-echo ~~~~~ \*nix Bukkit Plugin Generator ~~~~~
+# Read Configuration Files
+function read_config(){
+	local cfgPath="$(pwd)/settings.cfg"
+	if [ -a $cfgPath ]; then
+		echo -e "\n\e[1;36mReading \e[1;32mconfig\e[1;36m...\e[0;37m" >&2
+		source $cfgPath
+		return
+	else
+		echo -e "\\e[1;36mCreating \e[1;32mdefault config\e[1;36m...\e[0;37m" >&2
+		echo -ne "# General Settings\noutput_folder=\".\"\n\n# Project File Generation\ngen_intellij=0\ngen_eclipse=0\ngen_netbeans=0\ngen_ant=0" > $cfgPath
+		source $cfgPath
+		return
+	fi
+}
 
-read -p "Enter your name: " USERNAME
-read -p "Enter your plugin's name: " PLUGINNAME
+# Input validation.
+function validate_input(){
+	local _true=1; local _false=0
+	# Get the input.
+	local _input=${1}
+	# Same as above, but with
+	# dashes and underscores.
+	local _symbols=${2:-$_true}
+	# Unless stated otherwise,
+	# numbers will be allowed.
+	local _numbers=${3:-$_true}
+	# Finally, anything
+	local _anything${4:-$_false}
+	if [ $_anything ]; then
+		is_valid=1
+		return
+	fi
+	# Escape some characters in the actual value.
+	local _action=${_input//\$/\\\$}
+	_action=${_action/\"/}
+	
+	# Begin assembling the expression.
+	local _expr="sed -e 's/[a-zA-Z"
+	
+	## If we allow numbers, add them in.
+	if [ $_numbers == 1 ]; then
+		_expr="${_expr}0-9"
+	fi
+	
+	## If we allow symbols, add them in.
+	if [ $_symbols == 1 ]; then
+		_expr="${_expr}_-"
+	fi
+	
+	# Finish it off.
+	_expr="${_expr}]//g'"
+	
+	# Now put it all together.
+	local _result=""
+	eval "_result=\$(echo -ne \"${_action}\" | ${_expr})"
+	is_valid=$(( ${#_result} == 0 ? 1 : 0 ))
+	return
+}
 
-echo "Will generate plugin: $PLUGINNAME by $USERNAME"
-echo ""
+# Our banner.
+echo -ne "\e[1;36m ___   _     _     _     _  _____ \n| |_) | | | | |_/ | |_/ | |  | |  \n|_|_) \\_\\_/ |_| \\ |_| \\ |_|  |_|  \n\n"
+echo -ne "\e[1;37m __    ____  _      ____  ___    __   _____  ___   ___  \n/ /\`_ | |_  | |\\ | | |_  | |_)  / /\\   | |  / / \\ | |_) \n\\_\\_/ |_|__ |_| \\| |_|__ |_| \\ /_/--\\  |_|  \\_\\_/ |_| \\ \n\n"
 
-pause
+# Read in our configuration.
+read_config
 
-echo "Generating plugin..."
-echo "";
+# Questions.
+echo -ne "\e[1;36mAuthor's name:\e[0;37m "; read USERNAME
+echo -ne "\e[1;36mPlugin's name:\e[0;37m "; read PLUGINNAME
+echo -ne "\e[1;36mPlugin Version (\e[0;37m0.1\e[1;36m by default):\e[0;37m "; read PLUGINVERSION
+PLUGINVERSION=${PLUGINVERSION:-0.1}
 
+# Validate the input.
+## First user name.
+validate_input "$USERNAME" 0 # No underscores or slashes allowed.
+if [ $is_valid == 0 ]; then
+	echo -e "\e[0;31mError: \e[1;37mThe author's name can only be made up of letters and numbers.\e[0;37m"
+	echo "Now exiting.."
+	exit
+fi
+## Next plugin name.
+validate_input "$PLUGINNAME" 0 0 # Nothing but letters here.
+if [ $is_valid == 0 ]; then
+	echo -e "\e[0;31mError: \e[1;37mThe plugin's name can only be made up of letters.\e[0;37m"
+	echo "Now exiting.."
+	exit
+fi
+## Finally, the version.
+validate_input "$PLUGINNAME" 1 1 1 # Put whatever you want here.
+if [ $is_valid == 0 ]; then
+	echo -e "\e[0;31m...What?\e[0;37m"
+	exit
+fi
+
+# Set the filenames and paths.
+echo -e "\e[1;36mGenerating  \e[1;32mmanifest\e[1;36m..\n\n\e[1;37mPlugin: \e[1;32m${PLUGINNAME}\n\e[1;37mVersion: \e[1;34m${PLUGINVERSION}\n\e[1;37mAuthor: \e[1;33m${USERNAME}\e[0;37m\n"
 BLOCKLISTENER=BlockListener.java
 YBLOCKLISTENER=${PLUGINNAME}BlockListener.java
-
 PLAYERLISTENER=PlayerListener.java
 YPLAYERLISTENER=${PLUGINNAME}PlayerListener.java 
-
 PLUGIN=YPlugin.java
-YPLUGIN=${PLUGINNAME}.java
-ENDPATH=${PLUGINNAME}/com/bukkit/${USERNAME}/${PLUGINNAME}
+YPLUGIN="${PLUGINNAME}.java"
+ENDPATH="${output_folder}/${PLUGINNAME}/src/com/bukkit/${USERNAME}/${PLUGINNAME}"
+BINPATH="${output_folder}/${PLUGINNAME}/bin"
 
-mkdir -p $ENDPATH
-cd $ENDPATH
+# Create the output directories.
+mkdir -p "${ENDPATH}"
+mkdir -p "${BINPATH}"
 
-#touch ${PLUGINNAME}.java
-#touch $YBLOCKLISTENER
-#touch ${YPLAYERLISTENER}.java
+# Store our current path, then enter the output area.
+SCRIPTROOT=`pwd`
+cd "${ENDPATH}"
 
+# Create our plugin's YAML file.
 cd ../../../../
-
 echo "name: $PLUGINNAME
 
 main: com.bukkit.$USERNAME.$PLUGINNAME
 
-version: 0.1" > plugin.yml
+version: $PLUGINVERSION" > plugin.yml
 
-cd ../files/
+# Inform USERNAME on status.
+echo -e "\e[1;36mGenerating \e[1;32mSource Files\e[1;36m..\e[0;37m"
 
-#cp $PLUGINYML ../${PLUGINNAME}/plugin.yml
-sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $BLOCKLISTENER > ../${ENDPATH}/$YBLOCKLISTENER
-sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $PLAYERLISTENER > ../${ENDPATH}/$YPLAYERLISTENER
-sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" $PLUGIN > ../${ENDPATH}/${PLUGINNAME}.java
+# Copy the rest of the template files.
+cd "${SCRIPTROOT}"
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" "${SCRIPTROOT}/files/${BLOCKLISTENER}" > "${ENDPATH}/$YBLOCKLISTENER"
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" "${SCRIPTROOT}/files/${PLAYERLISTENER}" > "${ENDPATH}/$YPLAYERLISTENER"
+sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" "${SCRIPTROOT}/files/${PLUGIN}" > "${ENDPATH}/${PLUGINNAME}.java"
 
-echo ~~~~~~~~~~~~~~~~~~~ Done! ~~~~~~~~~~~~~~~
+# Project file generation.
+
+## Eclipse
+if [ $gen_eclipse == 1 ]; then
+	echo -e "\e[1;36mGenerating \e[1;32mEclipse Project Files\e[1;36m..\e[0;37m"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/eclipse/.project" > "${output_folder}/${PLUGINNAME}/.project"
+	cp "${SCRIPTROOT}/projects/eclipse/.classpath" "${output_folder}/${PLUGINNAME}/.classpath"
+fi
+
+## IntelliJ
+if [ $gen_intellij == 1 ]; then
+	echo -e "\e[1;36mGenerating \e[1;32mIntelli-J Project Files\e[1;36m..\e[0;37m"
+	mkdir -p "${output_folder}/${PLUGINNAME}/.idea"
+	echo -n "${PLUGINNAME}" > "${output_folder}/${PLUGINNAME}/.idea/.name"
+	cp "${SCRIPTROOT}/projects/intellij/compiler.xml" "${output_folder}/${PLUGINNAME}/.idea/compiler.xml"
+	cp "${SCRIPTROOT}/projects/intellij/encodings.xml" "${output_folder}/${PLUGINNAME}/.idea/encodings.xml"
+	cp "${SCRIPTROOT}/projects/intellij/vcs.xml" "${output_folder}/${PLUGINNAME}/.idea/vcs.xml"
+	cp "${SCRIPTROOT}/projects/intellij/project.iml" "${output_folder}/${PLUGINNAME}/${PLUGINNAME}.iml"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/intellij/modules.xml" > "${output_folder}/${PLUGINNAME}/.idea/modules.xml"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/intellij/workspace.xml" > "${output_folder}/${PLUGINNAME}/.idea/workspace.xml"
+fi
+
+## NetBeans
+if [ $gen_netbeans == 1 ]; then
+	echo -e "\e[1;36mGenerating \e[1;32mNetbeans Project Files\e[1;36m..\e[0;37m"
+	mkdir -p "${output_folder}/${PLUGINNAME}/nbproject"
+	mkdir -p "${output_folder}/${PLUGINNAME}/nbproject/private"
+	cp "${SCRIPTROOT}/projects/netbeans/genfiles.properties" "${output_folder}/${PLUGINNAME}/nbproject/genfiles.properties"
+	cp "${SCRIPTROOT}/projects/netbeans/private/private.properties" "${output_folder}/${PLUGINNAME}/nbproject/private/private.properties"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/project.properties" > "${output_folder}/${PLUGINNAME}/nbproject/project.properties"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/build-impl.xml" > "${output_folder}/${PLUGINNAME}/nbproject/build-impl.xml"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/project.xml" > "${output_folder}/${PLUGINNAME}/nbproject/project.xml"
+fi
+
+## Apache Ant
+if [ $gen_ant == 1 ]; then
+	echo -e "\e[1;36mGenerating \e[1;32mAnt Build File\e[1;36m..\e[0;37m"
+	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/ant/build.xml" > "${output_folder}/${PLUGINNAME}/build.xml"
+fi
+
+# Done
+echo -e "\n\e[1;36m~~~\e[1;32m Done! \e[1;36m~~~\e[0;37m"
