@@ -2,14 +2,49 @@
 ## A simple script to generate the skeleton for a new BukkitMod plugin.
 ## Written by: Pezmc
 
-
-# Check if we're running windows. If so, clear the
-# "bash: warning: could not find /tmp, please create!
-# error that likely occurred when bash was started.
+# OS Detection
+## Check if we're running windows. If so, clear the
+## "bash: warning: could not find /tmp, please create!
+## error that likely occurred when bash was started.
 if [ $_OS -a $_OS == "NT" ]; then
 	if [ "${_CMD}" != "NULL" ]; then
 		eval "$(echo -n "${_CMD}" | sed -e 's/\\/\//g' | sed -e 's/^[a-z]://mi' | sed -e 's/[\r\n]//g')"
 	fi
+	_OS='nt'
+else
+	# Get the OS name and lowercase it.
+	_OS=`uname -s | tr '[A-Z]' '[a-z]'`
+	
+	# Now test if it's Linux or Mac OSX
+	if [[ $_OS == *linux* ]]; then
+		_OS='linux'
+	elif [[ $_OS == *cygwin* ]]; then
+		_OS='nt'
+	elif [[ $_OS == *darwin* ]]; then
+		_OS='mac'
+	fi
+fi
+
+# Set up the ANSI escape colors depending on OS.
+if [[ $_OS == 'linux' || $_OS == 'nt' ]]; then
+	# Standard ANSI escape codes.
+	c_default='\e[0;37m'
+	c_white='\e[1;37m'
+	c_cyan='\e[1;36m'
+	c_green='\e[1;32m'
+	c_red='\e[0;31m'
+	c_blue='\e[1;34m'
+	c_yellow='\e[1;33m'
+elif [[ $_OS == 'mac' ]]; then
+	# For Mac OS X, we have to do it slightly
+	# different.
+	c_default='\033[0;37m'
+	c_white='\033[1;37m'
+	c_cyan='\033[1;36m'
+	c_green='\033[1;32m'
+	c_red='\033[0;31m'
+	c_blue='\033[1;34m'
+	c_yellow='\033[1;33m'
 fi
 
 # Pause (Getch)
@@ -21,11 +56,11 @@ function pause(){
 function read_config(){
 	local cfgPath="$(pwd)/settings.cfg"
 	if [ -a $cfgPath ]; then
-		echo -e "\n\e[1;36mReading \e[1;32mconfig\e[1;36m...\e[0;37m" >&2
+		echo -e "\n${c_cyan}Reading ${c_green}config${c_cyan}...${c_default}" >&2
 		source $cfgPath
 		return
 	else
-		echo -e "\\e[1;36mCreating \e[1;32mdefault config\e[1;36m...\e[0;37m" >&2
+		echo -e "\${c_cyan}Creating ${c_green}default config${c_cyan}...${c_default}" >&2
 		echo -ne "# General Settings\noutput_folder=\".\"\n\n# Project File Generation\ngen_intellij=0\ngen_eclipse=0\ngen_netbeans=0\ngen_ant=0" > $cfgPath
 		source $cfgPath
 		return
@@ -77,42 +112,42 @@ function validate_input(){
 }
 
 # Our banner.
-echo -ne "\e[1;36m ___   _     _     _     _  _____ \n| |_) | | | | |_/ | |_/ | |  | |  \n|_|_) \\_\\_/ |_| \\ |_| \\ |_|  |_|  \n\n"
-echo -ne "\e[1;37m __    ____  _      ____  ___    __   _____  ___   ___  \n/ /\`_ | |_  | |\\ | | |_  | |_)  / /\\   | |  / / \\ | |_) \n\\_\\_/ |_|__ |_| \\| |_|__ |_| \\ /_/--\\  |_|  \\_\\_/ |_| \\ \n\n"
+echo -ne "${c_cyan} ___   _     _     _     _  _____ \n| |_) | | | | |_/ | |_/ | |  | |  \n|_|_) \\_\\_/ |_| \\ |_| \\ |_|  |_|  \n\n"
+echo -ne "${c_white} __    ____  _      ____  ___    __   _____  ___   ___  \n/ /\`_ | |_  | |\\ | | |_  | |_)  / /\\   | |  / / \\ | |_) \n\\_\\_/ |_|__ |_| \\| |_|__ |_| \\ /_/--\\  |_|  \\_\\_/ |_| \\ \n\n"
 
 # Read in our configuration.
 read_config
 
 # Questions.
-echo -ne "\e[1;36mAuthor's name:\e[0;37m "; read USERNAME
-echo -ne "\e[1;36mPlugin's name:\e[0;37m "; read PLUGINNAME
-echo -ne "\e[1;36mPlugin Version (\e[0;37m0.1\e[1;36m by default):\e[0;37m "; read PLUGINVERSION
+echo -ne "${c_cyan}Author's name:${c_default} "; read USERNAME
+echo -ne "${c_cyan}Plugin's name:${c_default} "; read PLUGINNAME
+echo -ne "${c_cyan}Plugin Version (${c_default}0.1${c_cyan} by default):${c_default} "; read PLUGINVERSION
 PLUGINVERSION=${PLUGINVERSION:-0.1}
 
 # Validate the input.
 ## First user name.
 validate_input "$USERNAME" 0 # No underscores or slashes allowed.
 if [ $is_valid == 0 ]; then
-	echo -e "\e[0;31mError: \e[1;37mThe author's name can only be made up of letters and numbers.\e[0;37m"
+	echo -e "${c_red}Error: ${c_white}The author's name can only be made up of letters and numbers.${c_default}"
 	echo "Now exiting.."
 	exit
 fi
 ## Next plugin name.
 validate_input "$PLUGINNAME" 0 0 # Nothing but letters here.
 if [ $is_valid == 0 ]; then
-	echo -e "\e[0;31mError: \e[1;37mThe plugin's name can only be made up of letters.\e[0;37m"
+	echo -e "${c_red}Error: ${c_white}The plugin's name can only be made up of letters.${c_default}"
 	echo "Now exiting.."
 	exit
 fi
 ## Finally, the version.
 validate_input "$PLUGINNAME" 1 1 1 # Put whatever you want here.
 if [ $is_valid == 0 ]; then
-	echo -e "\e[0;31m...What?\e[0;37m"
+	echo -e "${c_red}...What?${c_default}"
 	exit
 fi
 
 # Set the filenames and paths.
-echo -e "\e[1;36mGenerating  \e[1;32mmanifest\e[1;36m..\n\n\e[1;37mPlugin: \e[1;32m${PLUGINNAME}\n\e[1;37mVersion: \e[1;34m${PLUGINVERSION}\n\e[1;37mAuthor: \e[1;33m${USERNAME}\e[0;37m\n"
+echo -e "${c_cyan}Generating  ${c_green}manifest${c_cyan}..\n\n${c_white}Plugin: ${c_green}${PLUGINNAME}\n${c_white}Version: ${c_blue}${PLUGINVERSION}\n${c_white}Author: ${c_yellow}${USERNAME}${c_default}\n"
 BLOCKLISTENER=BlockListener.java
 YBLOCKLISTENER=${PLUGINNAME}BlockListener.java
 PLAYERLISTENER=PlayerListener.java
@@ -139,7 +174,7 @@ main: com.bukkit.$USERNAME.$PLUGINNAME
 version: $PLUGINVERSION" > plugin.yml
 
 # Inform USERNAME on status.
-echo -e "\e[1;36mGenerating \e[1;32mSource Files\e[1;36m..\e[0;37m"
+echo -e "${c_cyan}Generating ${c_green}Source Files${c_cyan}..${c_default}"
 
 # Copy the rest of the template files.
 cd "${SCRIPTROOT}"
@@ -151,14 +186,14 @@ sed -e "s/<yourname>/$USERNAME/g" -e "s/<pluginname>/$PLUGINNAME/g" "${SCRIPTROO
 
 ## Eclipse
 if [ $gen_eclipse == 1 ]; then
-	echo -e "\e[1;36mGenerating \e[1;32mEclipse Project Files\e[1;36m..\e[0;37m"
+	echo -e "${c_cyan}Generating ${c_green}Eclipse Project Files${c_cyan}..${c_default}"
 	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/eclipse/.project" > "${output_folder}/${PLUGINNAME}/.project"
 	cp "${SCRIPTROOT}/projects/eclipse/.classpath" "${output_folder}/${PLUGINNAME}/.classpath"
 fi
 
 ## IntelliJ
 if [ $gen_intellij == 1 ]; then
-	echo -e "\e[1;36mGenerating \e[1;32mIntelli-J Project Files\e[1;36m..\e[0;37m"
+	echo -e "${c_cyan}Generating ${c_green}Intelli-J Project Files${c_cyan}..${c_default}"
 	mkdir -p "${output_folder}/${PLUGINNAME}/.idea"
 	echo -n "${PLUGINNAME}" > "${output_folder}/${PLUGINNAME}/.idea/.name"
 	cp "${SCRIPTROOT}/projects/intellij/compiler.xml" "${output_folder}/${PLUGINNAME}/.idea/compiler.xml"
@@ -171,7 +206,7 @@ fi
 
 ## NetBeans
 if [ $gen_netbeans == 1 ]; then
-	echo -e "\e[1;36mGenerating \e[1;32mNetbeans Project Files\e[1;36m..\e[0;37m"
+	echo -e "${c_cyan}Generating ${c_green}Netbeans Project Files${c_cyan}..${c_default}"
 	mkdir -p "${output_folder}/${PLUGINNAME}/nbproject"
 	mkdir -p "${output_folder}/${PLUGINNAME}/nbproject/private"
 	cp "${SCRIPTROOT}/projects/netbeans/genfiles.properties" "${output_folder}/${PLUGINNAME}/nbproject/genfiles.properties"
@@ -183,9 +218,9 @@ fi
 
 ## Apache Ant
 if [ $gen_ant == 1 ]; then
-	echo -e "\e[1;36mGenerating \e[1;32mAnt Build File\e[1;36m..\e[0;37m"
+	echo -e "${c_cyan}Generating ${c_green}Ant Build File${c_cyan}..${c_default}"
 	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/ant/build.xml" > "${output_folder}/${PLUGINNAME}/build.xml"
 fi
 
 # Done
-echo -e "\n\e[1;36m~~~\e[1;32m Done! \e[1;36m~~~\e[0;37m"
+echo -e "\n${c_cyan}~~~${c_green} Done! ${c_cyan}~~~${c_default}"
