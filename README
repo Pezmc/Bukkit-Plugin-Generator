@@ -5,5 +5,14 @@ And sly for first port to *nix
 
 Instructions:
 
+    OSX
     - Run create from terminal, you may need to chmod +x the file
+    - Copy the resulting directory into your project directory/
+
+    Linux
+    - Run create from a shell, you may need to chmod +x the file
+    - Copy the resulting directory into your project directory/
+
+    Windows
+    - Run create.bat from windows explorer
     - Copy the resulting directory into your project directory/
