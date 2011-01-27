@@ -7,9 +7,6 @@
 ## "bash: warning: could not find /tmp, please create!
 ## error that likely occurred when bash was started.
 if [ $_OS -a $_OS == "NT" ]; then
-	if [ "${_CMD}" != "NULL" ]; then
-		eval "$(echo -n "${_CMD}" | sed -e 's/\\/\//g' | sed -e 's/^[a-z]://mi' | sed -e 's/[\r\n]//g')"
-	fi
 	_OS='nt'
 else
 	# Get the OS name and lowercase it.
@@ -49,7 +46,7 @@ fi
 
 # Pause (Getch)
 function pause(){
-    read -p "Press any key to continue..."
+	read -p "Press any key to continue..."
 }
 
 # Read Configuration Files
@@ -224,3 +221,6 @@ fi
 
 # Done
 echo -e "\n${c_cyan}~~~${c_green} Done! ${c_cyan}~~~${c_default}"
+if [ $_OS -a $_OS != 'nt' ]; then
+	pause
+fi

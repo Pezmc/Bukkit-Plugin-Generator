@@ -1,0 +1,10 @@
+if [ -z "$MSYSTEM" ]; then
+  MSYSTEM=MINGW32
+fi
+export HOME=/etc
+export HISTFILE=
+export HISTFILESIZE=0
+export HISTSIZE=0
+export MSYSTEM
+export MAKE_MODE=unix
+export PS1='\u'
