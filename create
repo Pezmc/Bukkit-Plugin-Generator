@@ -137,7 +137,7 @@ if [ $is_valid == 0 ]; then
 	exit
 fi
 ## Finally, the version.
-validate_input "$PLUGINNAME" 1 1 1 # Put whatever you want here.
+validate_input "$PLUGINVERSION" 1 1 1 # Put whatever you want here.
 if [ $is_valid == 0 ]; then
 	echo -e "${c_red}...What?${c_default}"
 	exit
