@@ -163,7 +163,96 @@ $buffer = $null
 bp
 wh "Generating Plugin Manifest" -ForegroundColor DarkGreen
 Set-Location -Path $ROOTPATH
-$content = "name: " + $pluginName + "`n`nmain: com.bukkit." + $userName + "." + $pluginName + "`n`nversion: " + $pluginVersion
+$content = "name: " + $pluginName + "`n`nmain: com.bukkit." + $authorName + "." + $pluginName + "`n`nversion: " + $pluginVersion
 $buffer = Set-Content -Path (Join-Path -Path $ROOTPATH -ChildPath "plugin.yml") -Value $content -Force
 $content = $null
 $buffer = $null
+
+## Generate sources
+bp
+wh "Generating Plugin Source" -ForegroundColor DarkGreen
+Set-Location -Path $PSScriptRoot
+$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath ("files\" + $BLOCKLISTENER)
+				)))).Replace("<yourname>", $authorName).Replace("<pluginname>", $pluginName)
+			) -Path (Join-Path -Path $ENDPATH -ChildPath $YBLOCKLISTENER) -Force
+$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath ("files\" + $PLAYERLISTENER)
+				)))).Replace("<yourname>", $authorName).Replace("<pluginname>", $pluginName)
+			) -Path (Join-Path -Path $ENDPATH -ChildPath $YPLAYERLISTENER) -Force
+$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath ("files\" + $PLUGIN)
+				)))).Replace("<yourname>", $authorName).Replace("<pluginname>", $pluginName)
+			) -Path (Join-Path -Path $ENDPATH -ChildPath $YPLUGIN) -Force
+
+## Generate project files.
+### Eclipse
+if ($config["gen_eclipse"] -eq 1) {
+	bp
+	wh "Generating Eclipse Project.." -ForegroundColor DarkGreen
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\eclipse\.project"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath ".project") -Force
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\eclipse\.classpath") (Join-Path -Path $ROOTPATH -ChildPath ".classpath")
+}
+### IntelliJ
+if ($config["gen_intellij"] -eq 1) {
+	bp
+	wh "Generating IntelliJ Project.." -ForegroundColor DarkGreen
+	$buffer = mkdir -Force (Join-Path -Path $ROOTPATH -ChildPath ".idea")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\compiler.xml") (Join-Path -Path $ROOTPATH -ChildPath ".idea\compiler.xml")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\encodings.xml") (Join-Path -Path $ROOTPATH -ChildPath ".idea\encodings.xml")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\vcs.xml") (Join-Path -Path $ROOTPATH -ChildPath ".idea\vcs.xml")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\project.iml") (Join-Path -Path $ROOTPATH -ChildPath ($pluginName + ".iml"))
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\modules.xml"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath ".idea\modules.xml") -Force
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\intellij\workspace.xml"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath ".idea\workspace.xml") -Force
+}
+### Netbeans
+if ($config["gen_netbeans"] -eq 1) {
+	bp
+	wh "Generating Netbeans Project.." -ForegroundColor DarkGreen
+	$buffer = mkdir -Force (Join-Path -Path $ROOTPATH -ChildPath "nbproject\private")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\genfiles.properties") (Join-Path -Path $ROOTPATH -ChildPath "nbproject\genfiles.properties")
+	$buffer = cp (Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\private\private.properties") (Join-Path -Path $ROOTPATH -ChildPath "nbproject\private\private.properties")
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\project.properties"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath "nbproject\project.properties") -Force
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\build-impl.xml"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath "nbproject\build-impl.xml") -Force
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\project.xml"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath "nbproject\project.xml") -Force
+}
+### Ant
+if ($config["gen_ant"] -eq 1) {
+	bp
+	wh "Generating Ant Build Files.." -ForegroundColor DarkGreen
+	$buffer =	Set-Content -Value (
+				([string]::join([environment]::newline,(Get-Content -Path (
+					Join-Path -Path $PSScriptRoot -ChildPath "projects\ant\build.xml"
+				)))).Replace("{{PLUGINNAME}}", $pluginName)
+			) -Path (Join-Path -Path $ROOTPATH -ChildPath "build.xml") -Force
+}
+
+bp
+wh "Plugin generation finished! Now exitting.." -ForegroundColor DarkGreen
