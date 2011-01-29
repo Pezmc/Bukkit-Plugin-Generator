@@ -76,7 +76,7 @@ function Get-Config($root) {
 	if (!$Configuration['output_folder']) {
 		$Configuration['output_folder'] = '.'
 	} else {
-		$Configuration['output_folder'] = $Configuration['output_folder'].Replace('"."', '.')
+		$Configuration['output_folder'] = $Configuration['output_folder'].Replace('"', '').Replace("'", '')
 	}
 	if (!$Configuration['gen_intellij']) {
 		$Configuration['gen_intellij'] = 0
@@ -132,7 +132,7 @@ while($pluginName.length -eq 0) {
 }
 ## Plugin's Version (Can be empty)
 bp
-wh "Plugin's Version" -NoNewline -ForegroundColor $bColor
+wh "Plugin's Version " -NoNewline -ForegroundColor $bColor
 wh "(Default: 0.1)" -NoNewline -ForegroundColor Magenta
 $pluginVersion = rh ":"
 if(!$pluginVersion) {
@@ -230,7 +230,7 @@ if ($config["gen_netbeans"] -eq 1) {
 	$buffer =	Set-Content -Value (
 				([string]::join([environment]::newline,(Get-Content -Path (
 					Join-Path -Path $PSScriptRoot -ChildPath "projects\netbeans\project.properties"
-				)))).Replace("{{PLUGINNAME}}", $pluginName)
+				)))).Replace("{{USERNAME}}", $authorName).Replace("{{PLUGINNAME}}", $pluginName)
 			) -Path (Join-Path -Path $ROOTPATH -ChildPath "nbproject\project.properties") -Force
 	$buffer =	Set-Content -Value (
 				([string]::join([environment]::newline,(Get-Content -Path (
@@ -255,4 +255,6 @@ if ($config["gen_ant"] -eq 1) {
 }
 
 bp
-wh "Plugin generation finished! Now exitting.." -ForegroundColor DarkGreen
+wh "Plugin generation finished!" -ForegroundColor DarkGreen
+wh "`n`nNOTE:" -ForegroundColor Yellow -NoNewline
+wh " You will need to add a reference to wherever you keep Bukkit's jar file if you decided to generate an IDE project/build file. Look for this integrated into this script later." -ForegroundColor White
