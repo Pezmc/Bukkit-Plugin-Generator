@@ -137,10 +137,9 @@ if [ $is_valid == 0 ]; then
 	exit
 fi
 ## Finally, the version.
-validate_input "$PLUGINNAME" 1 1 1 # Put whatever you want here.
+validate_input "$PLUGINVERSION" 1 1 1 # Put whatever you want here.
 if [ $is_valid == 0 ]; then
-	echo -e "${c_red}...What?${c_default}"
-	exit
+	PLUGINVERSION="0.1"
 fi
 
 # Set the filenames and paths.
@@ -208,7 +207,7 @@ if [ $gen_netbeans == 1 ]; then
 	mkdir -p "${output_folder}/${PLUGINNAME}/nbproject/private"
 	cp "${SCRIPTROOT}/projects/netbeans/genfiles.properties" "${output_folder}/${PLUGINNAME}/nbproject/genfiles.properties"
 	cp "${SCRIPTROOT}/projects/netbeans/private/private.properties" "${output_folder}/${PLUGINNAME}/nbproject/private/private.properties"
-	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/project.properties" > "${output_folder}/${PLUGINNAME}/nbproject/project.properties"
+	sed -e "s/{{USERNAME}}/$USERNAME/g" -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/project.properties" > "${output_folder}/${PLUGINNAME}/nbproject/project.properties"
 	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/build-impl.xml" > "${output_folder}/${PLUGINNAME}/nbproject/build-impl.xml"
 	sed -e "s/{{PLUGINNAME}}/$PLUGINNAME/g" "${SCRIPTROOT}/projects/netbeans/project.xml" > "${output_folder}/${PLUGINNAME}/nbproject/project.xml"
 fi
@@ -221,6 +220,7 @@ fi
 
 # Done
 echo -e "\n${c_cyan}~~~${c_green} Done! ${c_cyan}~~~${c_default}"
+echo -e "\n\n${c_yellow}NOTE: ${c_white}You will need to add a reference to wherever you keep Bukkit's jar file if you decided to generate an IDE project/build file. Look for this integrated into this script later.${c_default}\n"
 if [ $_OS -a $_OS != 'nt' ]; then
 	pause
 fi
