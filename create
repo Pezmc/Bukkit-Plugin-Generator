@@ -57,7 +57,7 @@ function read_config(){
 		source $cfgPath
 		return
 	else
-		echo -e "\${c_cyan}Creating ${c_green}default config${c_cyan}...${c_default}" >&2
+		echo -e "\n${c_cyan}Creating ${c_green}default config${c_cyan}...${c_default}" >&2
 		echo -ne "# General Settings\noutput_folder=\".\"\n\n# Project File Generation\ngen_intellij=0\ngen_eclipse=0\ngen_netbeans=0\ngen_ant=0" > $cfgPath
 		source $cfgPath
 		return
