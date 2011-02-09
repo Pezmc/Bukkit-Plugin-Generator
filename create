@@ -150,7 +150,7 @@ PLAYERLISTENER=PlayerListener.java
 YPLAYERLISTENER=${PLUGINNAME}PlayerListener.java 
 PLUGIN=YPlugin.java
 YPLUGIN="${PLUGINNAME}.java"
-ENDPATH="${output_folder}/${PLUGINNAME}/src/com/bukkit/${USERNAME}/${PLUGINNAME}"
+ENDPATH="${output_folder}/${PLUGINNAME}/src/${USERNAME}/${PLUGINNAME}"
 BINPATH="${output_folder}/${PLUGINNAME}/bin"
 
 # Create the output directories.
