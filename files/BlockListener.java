@@ -1,4 +1,4 @@
-package com.bukkit.<yourname>.<pluginname>;
+package <yourname>.<pluginname>;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

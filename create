@@ -165,7 +165,7 @@ cd "${ENDPATH}"
 cd ../../../../
 echo "name: $PLUGINNAME
 
-main: com.bukkit.$USERNAME.$PLUGINNAME
+main: $USERNAME.$PLUGINNAME
 
 version: $PLUGINVERSION" > plugin.yml
 
