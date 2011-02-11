@@ -76,7 +76,7 @@ function validate_input(){
 	# numbers will be allowed.
 	local _numbers=${3:-$_true}
 	# Finally, anything
-	local _anything${4:-$_false}
+	local _anything=${4:-$_false}
 	if [ $_anything ]; then
 		is_valid=1
 		return
